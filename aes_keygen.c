@@ -1,10 +1,11 @@
 #include <stdint.h>
 #include <stdio.h>
+#include <stdlib.h>
 
 #define Nb 4
 #define Nr 10
 #define Nk 4
-static uint8_t Rcon[] = {0x01, 0x02, 0x04, 0x08, 0x10, 0x20, 0x40, 0x80, 0x1b, 0x36};
+static uint8_t Rcon[10] = {0x01, 0x02, 0x04, 0x08, 0x10, 0x20, 0x40, 0x80, 0x1b, 0x36};
 
 static const uint8_t sbox[256] = {
     // 0     1    2      3     4    5     6     7      8    9     A      B    C     D     E     F
@@ -34,21 +35,33 @@ static uint8_t roundkey[176];
 
 static void key_scheudling(uint8_t *roundkey, uint8_t *key)
 {
-    for (int i = 0; i < Nk; i++)
+    char *str1 = (char *)malloc(sizeof(uint8_t) * 4);
+    printf("starting kye\n");
+    for (int i = 0; i < Nk; ++i)
     {
         // first round key iteration is the default key//
         roundkey[(i * 4) + 0] = key[(i * 4) + 0];
         roundkey[(i * 4) + 1] = key[(i * 4) + 1];
         roundkey[(i * 4) + 2] = key[(i * 4) + 2];
-        roundkey[(i * 4) + 4] = key[(i * 4) + 4];
+        roundkey[(i * 4) + 3] = key[(i * 4) + 3];
+
+        sprintf(str1, "%x,%x,%x,%x", roundkey[(i * 4) + 0], roundkey[(i * 4) + 1], roundkey[(i * 4) + 2], roundkey[(i * 4) + 3]);
+        printf("%s\n", str1);
     }
     uint8_t word[4];
-    for (int i = Nk; i < (Nr + 1) * Nb; i++)
+    char *str_word = (char *)malloc(sizeof(uint8_t) * 4);
+    char *str_subword = (char *)malloc(sizeof(uint8_t) * 4);
+    char *str_rcon = (char *)malloc(sizeof(uint8_t) * 4);
+    char *str_rcon1 = (char *)malloc(sizeof(uint8_t) * 1);
+
+    for (int i = Nk; i < (Nr + 1) * Nb; ++i)
     {
         word[0] = roundkey[((i - 1) * 4) + 0];
         word[1] = roundkey[((i - 1) * 4) + 1];
         word[2] = roundkey[((i - 1) * 4) + 2];
         word[3] = roundkey[((i - 1) * 4) + 3];
+        sprintf(str_word, "%x,%x,%x,%x", word[0], word[1], word[2], word[3]);
+        printf("%d:%s\n", i, str_word);
 
         // printf("%d,%d,%d,%d", &word[0], &word[1], &word[2], &word[3]);
 
@@ -57,8 +70,8 @@ static void key_scheudling(uint8_t *roundkey, uint8_t *key)
 
             // rotating the word
 
-            uint8_t t;
-            t = word[0];
+            const uint8_t t = word[0];
+
             word[0] = word[1];
             word[1] = word[2];
             word[2] = word[3];
@@ -70,8 +83,15 @@ static void key_scheudling(uint8_t *roundkey, uint8_t *key)
             word[1] = sbox[word[1]];
             word[2] = sbox[word[2]];
             word[3] = sbox[word[3]];
+            sprintf(str_subword, "%x,%x,%x,%x", word[0], word[1], word[2], word[3]);
+            printf("%s\n", str_subword);
 
             word[0] = word[0] ^ Rcon[i / Nk];
+            sprintf(str_rcon1, "%x", Rcon[(i / Nk) - 1]);
+            printf("%s\n", str_rcon1);
+
+            sprintf(str_rcon, "%x,%x,%x,%x", word[0], word[1], word[2], word[3]);
+            printf("%s\n", str_rcon);
         }
 
         int j = i * 4;
@@ -81,6 +101,14 @@ static void key_scheudling(uint8_t *roundkey, uint8_t *key)
         roundkey[j + 2] = word[2] ^ roundkey[k + 2];
         roundkey[j + 3] = word[3] ^ roundkey[k + 3];
 
-        // printf("%d,%d,%d,%d", &word[0], &word[1], &word[2], &word[3]);
+        char *str = (char *)malloc(sizeof(uint8_t) * 4);
+        sprintf(str, "%x,%x,%x,%x", roundkey[j + 0], roundkey[j + 1], roundkey[j + 2], roundkey[j + 3]);
+        // printf("%d:%s \n", i, str);
     }
+}
+
+int main()
+{
+
+    key_scheudling(roundkey, key);
 }
