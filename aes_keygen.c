@@ -30,7 +30,7 @@ const uint8_t key[16] = {(uint8_t)0x2b, (uint8_t)0x7e, (uint8_t)0x15, (uint8_t)0
                          (uint8_t)0xab, (uint8_t)0xf7, (uint8_t)0x15, (uint8_t)0x88,
                          (uint8_t)0x09, (uint8_t)0xcf, (uint8_t)0x4f, (uint8_t)0x3c};
 
-static uint8_t roundkey[160];
+static uint8_t roundkey[176];
 
 static void key_scheudling(uint8_t *roundkey, uint8_t *key)
 {
@@ -52,21 +52,34 @@ static void key_scheudling(uint8_t *roundkey, uint8_t *key)
 
         // printf("%d,%d,%d,%d", &word[0], &word[1], &word[2], &word[3]);
 
-        // rotating the word
+        if (i % Nk == 0)
+        {
 
-        uint8_t t;
-        t = word[0];
-        word[0] = word[1];
-        word[1] = word[2];
-        word[2] = word[3];
-        word[3] = t;
+            // rotating the word
 
-        // sub bytes
+            uint8_t t;
+            t = word[0];
+            word[0] = word[1];
+            word[1] = word[2];
+            word[2] = word[3];
+            word[3] = t;
 
-        word[0] = sbox[word[0]];
-        word[1] = sbox[word[1]];
-        word[2] = sbox[word[2]];
-        word[3] = sbox[word[3]];
+            // sub bytes
+
+            word[0] = sbox[word[0]];
+            word[1] = sbox[word[1]];
+            word[2] = sbox[word[2]];
+            word[3] = sbox[word[3]];
+
+            word[0] = word[0] ^ Rcon[i / Nk];
+        }
+
+        int j = i * 4;
+        int k = (i - Nk) * 4;
+        roundkey[j + 0] = word[0] ^ roundkey[k + 0];
+        roundkey[j + 1] = word[1] ^ roundkey[k + 1];
+        roundkey[j + 2] = word[2] ^ roundkey[k + 2];
+        roundkey[j + 3] = word[3] ^ roundkey[k + 3];
 
         // printf("%d,%d,%d,%d", &word[0], &word[1], &word[2], &word[3]);
     }
