@@ -5,8 +5,11 @@
 #define Nb 4
 #define Nr 10
 #define Nk 4
+
+// staging the round constants for later use
 static const uint8_t Rcon[10] = {0x01, 0x02, 0x04, 0x08, 0x10, 0x20, 0x40, 0x80, 0x1b, 0x36};
 
+// staging the sbox for later ref
 static const uint8_t sbox[256] = {
     // 0     1    2      3     4    5     6     7      8    9     A      B    C     D     E     F
     0x63, 0x7c, 0x77, 0x7b, 0xf2, 0x6b, 0x6f, 0xc5, 0x30, 0x01, 0x67, 0x2b, 0xfe, 0xd7, 0xab, 0x76,  // 0//
@@ -26,11 +29,13 @@ static const uint8_t sbox[256] = {
     0xe1, 0xf8, 0x98, 0x11, 0x69, 0xd9, 0x8e, 0x94, 0x9b, 0x1e, 0x87, 0xe9, 0xce, 0x55, 0x28, 0xdf,  // e//
     0x8c, 0xa1, 0x89, 0x0d, 0xbf, 0xe6, 0x42, 0x68, 0x41, 0x99, 0x2d, 0x0f, 0xb0, 0x54, 0xbb, 0x16}; // f//
 
+// the key used
 const uint8_t key[16] = {(uint8_t)0x2b, (uint8_t)0x7e, (uint8_t)0x15, (uint8_t)0x16,
                          (uint8_t)0x28, (uint8_t)0xae, (uint8_t)0xd2, (uint8_t)0xa6,
                          (uint8_t)0xab, (uint8_t)0xf7, (uint8_t)0x15, (uint8_t)0x88,
                          (uint8_t)0x09, (uint8_t)0xcf, (uint8_t)0x4f, (uint8_t)0x3c};
 
+// array to store the round keys
 static uint8_t roundkey[176];
 
 static void key_scheudling(uint8_t *roundkey, uint8_t *key)
@@ -48,7 +53,9 @@ static void key_scheudling(uint8_t *roundkey, uint8_t *key)
         sprintf(str1, "%x,%x,%x,%x", roundkey[(i * 4) + 0], roundkey[(i * 4) + 1], roundkey[(i * 4) + 2], roundkey[(i * 4) + 3]);
         printf("%s\n", str1);
     }
-    uint8_t word[4];
+
+    uint8_t word[4]; // array to store the word
+
     char *str_word = (char *)malloc(sizeof(uint8_t) * 4);
     char *str_subword = (char *)malloc(sizeof(uint8_t) * 4);
     char *str_rcon = (char *)malloc(sizeof(uint8_t) * 4);
@@ -56,6 +63,7 @@ static void key_scheudling(uint8_t *roundkey, uint8_t *key)
 
     for (int i = Nk; i < (Nr + 1) * Nb; ++i)
     {
+        // defining the 1st word of ith round by last word of last round
         word[0] = roundkey[((i - 1) * 4) + 0];
         word[1] = roundkey[((i - 1) * 4) + 1];
         word[2] = roundkey[((i - 1) * 4) + 2];
@@ -86,6 +94,8 @@ static void key_scheudling(uint8_t *roundkey, uint8_t *key)
             sprintf(str_subword, "%x,%x,%x,%x", word[0], word[1], word[2], word[3]);
             printf("%s\n", str_subword);
 
+            // adding the round const
+
             word[0] = word[0] ^ Rcon[i / Nk];
             sprintf(str_rcon1, "%x", Rcon[(i / Nk) - 1]);
             printf("%s\n", str_rcon1);
@@ -94,8 +104,10 @@ static void key_scheudling(uint8_t *roundkey, uint8_t *key)
             printf("%s\n", str_rcon);
         }
 
-        int j = i * 4;
-        int k = (i - Nk) * 4;
+        int j = i * 4;        // index for accessing current round key positions
+        int k = (i - Nk) * 4; // index to access the last round words
+
+        // xoring the word with the word of the pevious round
         roundkey[j + 0] = word[0] ^ roundkey[k + 0];
         roundkey[j + 1] = word[1] ^ roundkey[k + 1];
         roundkey[j + 2] = word[2] ^ roundkey[k + 2];
