@@ -5,7 +5,7 @@
 #define Nb 4
 #define Nr 10
 #define Nk 4
-static uint8_t Rcon[10] = {0x01, 0x02, 0x04, 0x08, 0x10, 0x20, 0x40, 0x80, 0x1b, 0x36};
+static const uint8_t Rcon[10] = {0x01, 0x02, 0x04, 0x08, 0x10, 0x20, 0x40, 0x80, 0x1b, 0x36};
 
 static const uint8_t sbox[256] = {
     // 0     1    2      3     4    5     6     7      8    9     A      B    C     D     E     F
@@ -103,7 +103,7 @@ static void key_scheudling(uint8_t *roundkey, uint8_t *key)
 
         char *str = (char *)malloc(sizeof(uint8_t) * 4);
         sprintf(str, "%x,%x,%x,%x", roundkey[j + 0], roundkey[j + 1], roundkey[j + 2], roundkey[j + 3]);
-        // printf("%d:%s \n", i, str);
+        printf("%s \n", str);
     }
 }
 
