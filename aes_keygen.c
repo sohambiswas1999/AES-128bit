@@ -96,7 +96,7 @@ static void key_scheudling(uint8_t *roundkey, uint8_t *key)
 
             // adding the round const
 
-            word[0] = word[0] ^ Rcon[i / Nk];
+            word[0] = word[0] ^ Rcon[(i / Nk) - 1];
             sprintf(str_rcon1, "%x", Rcon[(i / Nk) - 1]);
             printf("%s\n", str_rcon1);
 
