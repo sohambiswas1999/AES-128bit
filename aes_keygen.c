@@ -183,10 +183,6 @@ static void mixcolumn(uint8_t s[4][4])
         s[2][i] = a ^ b ^ multi(0x02, c) ^ multi(0x03, d);
         s[3][i] = multi(0x03, a) ^ b ^ c ^ multi(0x02, d);
     }
-    /* for (int i = 0; i < 4; i++)
-     {
-         printf("%X,%x,%x,%x\n", s[i][0], s[i][1], s[i][2], s[i][3]);
-     }*/
 }
 
 // Function to add round key
@@ -292,6 +288,14 @@ static void cipher(uint8_t state[4][4], uint8_t roundkey[176])
     Sub_Bytes(state);
     shiftrow(state);
     Add_roundkey(state, roundkey, Nr);
+}
+
+static uint8_t invshiftrow(uint8_t state[4][4])
+{
+}
+
+static uint8_t decrypt(uint8_t state[4][4], uint8_t roundkey[176])
+{
 }
 
 int main()
